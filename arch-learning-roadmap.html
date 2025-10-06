@@ -1,0 +1,1706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arch Linux Learning Roadmap</title>
+    <style>
+        /* General Setup and Variables */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --arch-blue: #1793d1;
+            --arch-dark: #333333;
+            --arch-light: #4d4d4d;
+            --terminal-green: #4ade80;
+            --terminal-bg: #0c0c0c;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --neon-glow: 0 0 10px rgba(23, 147, 209, 0.7), 0 0 20px rgba(23, 147, 209, 0.3);
+            --neon-shadow: 0 0 5px var(--arch-blue);
+        }
+
+        body {
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            background: linear-gradient(135deg, #050505 0%, #151515 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+            color: #ffffff;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(23, 147, 209, 0.05) 2px,
+                    rgba(23, 147, 209, 0.05) 4px
+                );
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .terminal-effect {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            color: var(--terminal-green);
+            font-size: 12px;
+            font-family: monospace;
+            opacity: 0.5;
+            z-index: 2;
+        }
+
+        /* --- Achievement Popup CSS --- */
+        .achievement-popup {
+            position: fixed;
+            top: 20px;
+            right: -400px;
+            width: 300px;
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid var(--terminal-green);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 0 15px var(--terminal-green);
+            transition: right 0.5s ease-out;
+            z-index: 3000;
+            text-align: right;
+        }
+
+        .achievement-popup.show {
+            right: 20px;
+        }
+
+        .achievement-title {
+            color: var(--warning);
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+            padding-bottom: 5px;
+        }
+
+        .achievement-desc {
+            color: white;
+            font-size: 0.9em;
+        }
+
+        /* --- Auth Container --- */
+        .auth-container {
+            max-width: 400px;
+            margin: 100px auto;
+            background: rgba(10, 10, 10, 0.9);
+            border: 2px solid var(--arch-blue);
+            border-radius: 12px;
+            box-shadow: var(--neon-glow);
+            padding: 40px;
+            display: none;
+            position: relative;
+            z-index: 10;
+            backdrop-filter: blur(8px);
+            transition: all 0.5s ease;
+        }
+
+        .auth-container.active {
+            display: block;
+            animation: glitchIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        @keyframes glitchIn {
+            0% { opacity: 0; transform: translateY(-30px) scale(0.95); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px dashed rgba(23, 147, 209, 0.5);
+        }
+
+        .auth-header h2 {
+            color: var(--terminal-green);
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 8px var(--terminal-green);
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(23, 147, 209, 0.3);
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
+            font-size: 1.05em;
+            transition: all 0.4s;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.8);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--arch-blue);
+            font-size: 0.9em;
+        }
+
+        .auth-btn {
+            background: linear-gradient(135deg, var(--arch-blue) 0%, #0a5c84 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.4s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            font-family: inherit;
+            box-shadow: 0 4px 15px rgba(23, 147, 209, 0.4);
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #ccc;
+        }
+
+        .auth-switch a {
+            color: var(--terminal-green);
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: 5px;
+            text-align: center;
+            display: none;
+            margin-bottom: 15px;
+            font-weight: 500;
+            border: 1px solid;
+            font-size: 0.95em;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .message.error {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+            border-color: var(--danger);
+        }
+
+        .message.success {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--success);
+            border-color: var(--success);
+        }
+
+        /* --- Main Container & Header --- */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(10, 10, 10, 0.95);
+            border: 2px solid var(--arch-blue);
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(23, 147, 209, 0.5), inset 0 0 30px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            display: none;
+            position: relative;
+            z-index: 10;
+            backdrop-filter: blur(8px);
+        }
+
+        .container.active {
+            display: block;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #050505 0%, var(--arch-dark) 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            border-bottom: 3px solid var(--arch-blue);
+        }
+
+        .ascii-art {
+            color: var(--arch-blue);
+            text-shadow: 0 0 5px var(--arch-blue);
+            font-size: 0.8em;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+
+        .header h1 {
+            color: white;
+            margin-bottom: 10px;
+            text-shadow: var(--neon-shadow);
+        }
+
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .user-name {
+            font-weight: bold;
+            color: var(--arch-blue);
+            font-size: 1.2em;
+        }
+
+        .user-name::before {
+            content: "user@arch:~$ ";
+            color: var(--terminal-green);
+            font-size: 0.9em;
+        }
+
+        .logout-btn, .delete-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s, box-shadow 0.3s;
+            font-family: inherit;
+            box-shadow: 0 0 5px rgba(239, 68, 68, 0.5);
+        }
+
+        .delete-btn {
+            background: #6d28d9; /* Purple for delete */
+            box-shadow: 0 0 10px rgba(109, 40, 217, 0.5);
+        }
+
+        .logout-btn:hover {
+            background: #cc0000;
+        }
+
+        .delete-btn:hover {
+            background: #4c1d95;
+        }
+
+        /* --- Progress Section --- */
+        .progress-section {
+            padding: 30px 40px;
+            background: #111;
+            border-bottom: 1px solid var(--arch-light);
+        }
+
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 15px;
+            flex-wrap: wrap; /* Added for responsiveness */
+        }
+
+        .stat-box {
+            background: #181818;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(23, 147, 209, 0.2);
+            flex-grow: 1;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--terminal-green);
+            text-shadow: 0 0 5px var(--terminal-green);
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            color: #ccc;
+            margin-top: 5px;
+            text-transform: uppercase;
+        }
+
+        .progress-bar-container {
+            height: 30px;
+            background: #333;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.8);
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #1793d1 0%, #4ade80 100%);
+            color: white;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            transition: width 0.5s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        /* --- Filter Section --- */
+        .content {
+            padding: 40px;
+        }
+
+        .filter-section {
+            display: grid;
+            grid-template-columns: 1fr repeat(2, auto) auto;
+            gap: 20px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+            align-items: end;
+        }
+
+        @media (max-width: 1000px) {
+            .filter-section {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            .filter-group {
+                flex-wrap: wrap;
+            }
+        }
+
+        .search-input {
+            padding: 10px 15px;
+            background: #181818;
+            border: 1px solid var(--arch-blue);
+            border-radius: 5px;
+            color: white;
+            font-family: inherit;
+            font-size: 1em;
+            width: 100%;
+            transition: all 0.3s;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-size: 0.9em;
+            color: var(--arch-blue);
+            margin-bottom: 5px;
+        }
+
+        .filter-group button {
+            display: inline-block;
+            padding: 8px 12px;
+            margin-right: 5px;
+            background: #222;
+            border: 1px solid #444;
+            border-radius: 5px;
+            color: #ddd;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .filter-group button:hover {
+            background: #333;
+            border-color: var(--terminal-green);
+        }
+
+        .filter-group button.active {
+            background: var(--arch-blue);
+            color: white;
+            border-color: var(--arch-blue);
+            box-shadow: 0 0 8px rgba(23, 147, 209, 0.6);
+        }
+
+        .reset-btn {
+            padding: 10px 20px;
+            background: var(--warning);
+            color: var(--arch-dark);
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            height: 40px; /* Align with search input height */
+        }
+
+        /* --- Chapter and Topic Styles --- */
+        .chapter {
+            margin-bottom: 20px;
+            border: 1px solid var(--arch-dark);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .chapter-header {
+            background: var(--arch-light);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            border-bottom: 3px solid var(--arch-blue);
+            transition: background 0.3s;
+        }
+
+        .chapter-header:hover {
+            background: #616161;
+        }
+
+        .chapter-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: white;
+        }
+
+        .chapter-meta {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .chapter-progress {
+            font-size: 1.1em;
+            color: var(--terminal-green);
+            font-weight: bold;
+        }
+
+        .toggle-icon {
+            font-size: 1.2em;
+            color: var(--arch-blue);
+            transition: transform 0.3s;
+        }
+
+        .toggle-icon.rotated {
+            transform: rotate(-90deg);
+        }
+
+        .chapter-content {
+            padding: 10px 20px;
+            background: #181818;
+            display: block; /* Default to show */
+        }
+
+        .topic {
+            display: flex;
+            align-items: flex-start;
+            padding: 15px 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+            transition: background 0.3s;
+            position: relative;
+        }
+
+        .topic:last-child {
+            border-bottom: none;
+        }
+
+        .topic:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .topic-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-right: 15px;
+            flex-shrink: 0;
+            cursor: pointer;
+            appearance: none;
+            background: #333;
+            border: 2px solid var(--arch-blue);
+            border-radius: 4px;
+            position: relative;
+            transition: all 0.3s;
+            pointer-events: all; /* Ensure click works */
+        }
+
+        .topic-checkbox:checked {
+            background: var(--terminal-green);
+            border-color: var(--terminal-green);
+            box-shadow: 0 0 8px var(--terminal-green);
+        }
+
+        .topic-checkbox:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--arch-dark);
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .topic-info {
+            flex-grow: 1;
+        }
+
+        .topic-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #eee;
+            margin-bottom: 5px;
+        }
+
+        .topic.completed .topic-title {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        /* Prereq Failed Styling */
+        .topic.prereq-failed {
+            border-left: 3px solid var(--danger);
+            background: rgba(239, 68, 68, 0.15);
+            position: relative;
+            cursor: pointer;
+        }
+
+        .topic.prereq-failed::after {
+            content: "PREREQUISITES NOT MET (Click checkbox to Override)";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(239, 68, 68, 0.7);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            z-index: 5;
+            transition: opacity 0.3s;
+            pointer-events: none; /* Allows click to pass through to the checkbox/topic area */
+        }
+        /* End Prereq Failed Styling */
+
+        .topic-link {
+            color: var(--arch-blue);
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: color 0.3s;
+        }
+
+        .topic-link:hover {
+            color: var(--terminal-green);
+        }
+
+        .topic-meta {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .badge {
+            font-size: 0.75em;
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .badge.difficulty.easy {
+            background: var(--success);
+            color: #000;
+        }
+        .badge.difficulty.medium {
+            background: var(--warning);
+            color: #000;
+        }
+        .badge.difficulty.hard {
+            background: var(--danger);
+            color: white;
+        }
+        .badge.time {
+            background: var(--arch-blue);
+            color: white;
+        }
+        .badge.weight {
+            background: #7c3aed;
+            color: white;
+        }
+
+        /* Prereq Styling */
+        .prerequisites-list {
+            margin-top: 10px;
+            font-size: 0.85em;
+            color: #aaa;
+        }
+
+        .prerequisites-list strong {
+            color: var(--arch-blue);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .prerequisites-list ul {
+            list-style: none;
+            padding-left: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px 10px;
+        }
+
+        .prerequisites-list li {
+            color: var(--warning);
+            font-style: italic;
+        }
+
+        .prerequisites-list li.completed-req {
+            color: var(--terminal-green);
+            text-decoration: line-through;
+        }
+
+        .prerequisites-list a.prereq-link {
+            color: inherit;
+        }
+
+
+
+        /* Modal Styles */
+        #prereqConfirmModal, #deleteConfirmModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #prereqConfirmModal > div, #deleteConfirmModal > div {
+            background: var(--terminal-bg);
+            border: 2px solid var(--danger);
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 450px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.5);
+        }
+
+        #modalPrereqList {
+            text-align: left;
+            margin: 10px 0 20px 0;
+        }
+        #modalPrereqList li {
+            list-style-type: '» ';
+            margin-left: 15px;
+            color: var(--warning);
+        }
+
+    </style>
+</head>
+<body>
+    <div style="position: fixed; top: 10px; left: 10px; z-index: 50; padding: 5px; background: rgba(0,0,0,0.7); border-radius: 5px; border: 1px solid var(--arch-blue);">
+        <img src="https://visitor-badge.glitch.me/badge?page_id=arch-learning-roadmap-project" alt="Visitor Count" />
+    </div>
+    <div class="terminal-effect" id="terminalClock"></div>
+
+    <div class="achievement-popup" id="achievementPopup">
+        <div class="achievement-title">🏆 Achievement Unlocked!</div>
+        <div class="achievement-desc" id="achievementDesc"></div>
+    </div>
+
+    <div class="auth-container active" id="loginContainer">
+        <div class="auth-header">
+            <h2>🐧 Arch Linux Learning Hub</h2>
+            <p>Enter the world of Arch Linux mastery</p>
+        </div>
+        <div class="message error" id="loginError"></div>
+        <form class="auth-form" id="loginForm">
+            <div class="form-group">
+                <label for="loginUsername">Username</label>
+                <input type="text" id="loginUsername" required autocomplete="username" placeholder="archuser">
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" required autocomplete="current-password" placeholder="••••••••">
+            </div>
+            <button type="submit" class="auth-btn">Login</button>
+        </form>
+        <div class="auth-switch">
+            New to Arch? <a id="showRegisterBtn">Create Account</a>
+        </div>
+    </div>
+
+    <div class="auth-container" id="registerContainer">
+        <div class="auth-header">
+            <h2>🚀 Join the Arch Community</h2>
+            <p>Begin your journey to Linux mastery</p>
+        </div>
+        <div class="message error" id="registerError"></div>
+        <div class="message success" id="registerSuccess"></div>
+        <form class="auth-form" id="registerForm">
+            <div class="form-group">
+                <label for="registerUsername">Username</label>
+                <input type="text" id="registerUsername" required minlength="3" maxlength="20" pattern="[a-zA-Z0-9_-]+" autocomplete="off" placeholder="new_arch_user">
+                <small style="color:#aaa;">3-20 characters, alphanumeric, underscore, and dash allowed</small>
+            </div>
+            <div class="form-group">
+                <label for="registerPassword">Password</label>
+                <input type="password" id="registerPassword" required minlength="6" autocomplete="new-password" placeholder="••••••••">
+                <small style="color:#aaa;">Minimum 6 characters</small>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" required minlength="6" autocomplete="new-password" placeholder="••••••••">
+            </div>
+            <button type="submit" class="auth-btn">Create Account</button>
+        </form>
+        <div class="auth-switch">
+            Already an Archer? <a id="showLoginBtn">Sign In</a>
+        </div>
+    </div>
+
+    <div class="container" id="mainContainer">
+        <div class="header">
+            <div class="user-info">
+                <span class="user-name" id="currentUser"></span>
+                <div class="user-actions">
+                    <button class="logout-btn" id="logoutBtn">Logout</button>
+                    <button class="delete-btn" id="deleteAccountBtn">Delete Account</button>
+                </div>
+            </div>
+            <pre class="ascii-art">
+    ╔═══╗╔═══╗╔═══╗╔╗ ╔╗
+    ║╔═╗║║╔═╗║║╔═╗║║║ ║║
+    ║╚═╝║║╚═╝║║║ ╚╝║╚═╝║
+    ║╔═╗║║╔╗╔╝║║ ╔╗║╔═╗║
+    ║║ ║║║║║╚╗║╚═╝║║║ ║║
+    ╚╝ ╚╝╚╝╚═╝╚═══╝╚╝ ╚╝
+            </pre>
+            <h1>Arch Linux Learning Roadmap</h1>
+            <p>Master the Art of Linux - The Arch Way</p>
+        </div>
+
+        <div class="progress-section">
+            <div class="progress-stats">
+                <div class="stat-box">
+                    <div class="stat-number" id="totalTopics">0</div>
+                    <div class="stat-label">Total Topics</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="completedTopics">0</div>
+                    <div class="stat-label">Topics Completed</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="totalWeight">0</div>
+                    <div class="stat-label">Total Weight Score</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="currentLevel">Novice</div>
+                    <div class="stat-label">Mastery Level</div>
+                </div>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="mainProgressBar" style="width: 0%;">0% (Score: 0/0)</div>
+            </div>
+        </div>
+
+        <div class="content">
+
+            <div class="filter-section">
+                <input type="text" id="topicSearch" class="search-input" placeholder="Search topics (e.g., Pacman, KDE, Btrfs)...">
+
+                <div class="filter-group">
+                    <label>Filter by Difficulty:</label>
+                    <div>
+                        <button class="filter-btn" data-filter-type="difficulty" data-filter-value="easy">Easy</button>
+                        <button class="filter-btn" data-filter-type="difficulty" data-filter-value="medium">Medium</button>
+                        <button class="filter-btn" data-filter-type="difficulty" data-filter-value="hard">Hard</button>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label>Filter by Status:</label>
+                    <div>
+                        <button class="filter-btn" data-filter-type="status" data-filter-value="incomplete">Incomplete</button>
+                        <button class="filter-btn" data-filter-type="status" data-filter-value="completed">Completed</button>
+                    </div>
+                </div>
+
+                <button class="reset-btn" id="resetFilters">Reset Filters</button>
+            </div>
+
+            <div id="chaptersContainer">
+                </div>
+        </div>
+    </div>
+
+    <div id="prereqConfirmModal">
+        <div>
+            <h3 style="color: var(--danger); margin-bottom: 15px;">PREREQUISITE ALERT</h3>
+            <p style="color: white; margin-bottom: 20px;">You have not completed the required prerequisite topics for **<span id="modalTopicTitle" style="color: var(--terminal-green);"></span>**.</p>
+            <p style="color: #aaa; font-size: 0.9em; margin-bottom: 25px;">Required topics:</p>
+            <ul id="modalPrereqList"></ul>
+            <button id="modalConfirmBtn" style="background: var(--danger); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-right: 10px; font-family: inherit;">Confirm and Proceed</button>
+            <button id="modalCancelBtn" style="background: var(--arch-blue); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; font-family: inherit;">Go Back</button>
+        </div>
+    </div>
+
+    <div id="deleteConfirmModal">
+        <div>
+            <h3 style="color: var(--danger); margin-bottom: 15px;">DANGER ZONE</h3>
+            <p style="color: white; margin-bottom: 20px; font-weight: bold;">Are you sure you want to permanently delete your account?</p>
+            <p style="color: #aaa; font-size: 0.9em; margin-bottom: 25px;">All your progress and data will be lost!</p>
+            <button id="deleteModalConfirmBtn" style="background: var(--danger); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-right: 10px; font-family: inherit;">YES, Delete Forever</button>
+            <button id="deleteModalCancelBtn" style="background: var(--arch-blue); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; font-family: inherit;">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA STRUCTURE (EXPANDED TO ~100 TOPICS) ---
+        const archRoadmap = [
+            {
+                id: 'c1',
+                title: 'Installation and Base System Setup (10 Topics)',
+                topics: [
+                    { id: 't1_1', title: 'Installation Guide Overview', difficulty: 'easy', time: '1h', weight: 2, prereqs: [], link: 'https://wiki.archlinux.org/title/Installation_guide' },
+                    { id: 't1_2', title: 'Partitioning with fdisk/parted (Basic)', difficulty: 'medium', time: '1.5h', weight: 3, prereqs: ['t1_1'], link: 'https://wiki.archlinux.org/title/Partitioning' },
+                    { id: 't1_3', title: 'Filesystem Creation (mkfs) and Mounting', difficulty: 'easy', time: '45m', weight: 3, prereqs: ['t1_2'], link: 'https://wiki.archlinux.org/title/File_system' },
+                    { id: 't1_4', title: 'Pacstrap and Base Package Installation', difficulty: 'easy', time: '45m', weight: 4, prereqs: ['t1_3'], link: 'https://wiki.archlinux.org/title/Pacman' },
+                    { id: 't1_5', title: 'Chrooting into the New System', difficulty: 'easy', time: '30m', weight: 2, prereqs: ['t1_4'], link: 'https://wiki.archlinux.org/title/Chroot' },
+                    { id: 't1_6', title: 'Fstab Generation and Verification', difficulty: 'medium', time: '1h', weight: 3, prereqs: ['t1_5'], link: 'https://wiki.archlinux.org/title/Fstab' },
+                    { id: 't1_7', title: 'Locale, Timezone, and Hostname Setup', difficulty: 'easy', time: '30m', weight: 2, prereqs: ['t1_5'], link: 'https://wiki.archlinux.org/title/System_configuration' },
+                    { id: 't1_8', title: 'User Account and Sudo Configuration', difficulty: 'easy', time: '30m', weight: 2, prereqs: ['t1_7'], link: 'https://wiki.archlinux.org/title/Users_and_groups' },
+                    { id: 't1_9', title: 'Boot Loader Installation (GRUB)', difficulty: 'hard', time: '2h', weight: 5, prereqs: ['t1_6', 't1_8'], link: 'https://wiki.archlinux.org/title/GRUB' },
+                    { id: 't1_10', title: 'Post-Installation Cleanup and Reboot', difficulty: 'easy', time: '30m', weight: 1, prereqs: ['t1_9'], link: 'https://wiki.archlinux.org/title/Installation_guide#Reboot' },
+                ]
+            },
+            {
+                id: 'c2',
+                title: 'Core System Management and Utilities (10 Topics)',
+                topics: [
+                    { id: 't2_1', title: 'Pacman Advanced Usage and Keys/Signatures', difficulty: 'medium', time: '1h', weight: 3, prereqs: ['t1_4'], link: 'https://wiki.archlinux.org/title/Pacman/Tips_and_tricks' },
+                    { id: 't2_2', title: 'Systemd: Services, Targets, and Timers', difficulty: 'medium', time: '2h', weight: 4, prereqs: ['t1_10'], link: 'https://wiki.archlinux.org/title/Systemd' },
+                    { id: 't2_3', title: 'Journalctl for System Logging', difficulty: 'easy', time: '1h', weight: 2, prereqs: ['t2_2'], link: 'https://wiki.archlinux.org/title/Systemd/Journal' },
+                    { id: 't2_4', title: 'Kernel Modules and Blacklisting', difficulty: 'medium', time: '1.5h', weight: 3, prereqs: ['t2_2'], link: 'https://wiki.archlinux.org/title/Kernel_modules' },
+                    { id: 't2_5', title: 'Using `lspci` and `lsusb` to Identify Hardware', difficulty: 'easy', time: '45m', weight: 1, prereqs: [], link: 'https://wiki.archlinux.org/title/Category:Hardware_detection' },
+                    { id: 't2_6', title: 'File Ownership and Permissions (chmod/chown)', difficulty: 'easy', time: '1h', weight: 2, prereqs: ['t1_8'], link: 'https://wiki.archlinux.org/title/File_permissions_and_attributes' },
+                    { id: 't2_7', title: 'Mkinitcpio: Customizing the Initramfs', difficulty: 'hard', time: '2h', weight: 5, prereqs: ['t1_9', 't2_4'], link: 'https://wiki.archlinux.org/title/Mkinitcpio' },
+                    { id: 't2_8', title: 'Using Reflector to Optimize Mirror List', difficulty: 'easy', time: '30m', weight: 1, prereqs: ['t2_1'], link: 'https://wiki.archlinux.org/title/Reflector' },
+                    { id: 't2_9', title: 'System-wide Environment Variables', difficulty: 'medium', time: '1h', weight: 3, prereqs: ['t2_6'], link: 'https://wiki.archlinux.org/title/Environment_variables' },
+                    { id: 't2_10', title: 'The `makepkg` Utility and Building Packages', difficulty: 'medium', time: '1.5h', weight: 3, prereqs: ['t2_1'], link: 'https://wiki.archlinux.org/title/Makepkg' },
+                ]
+            },
+            {
+                id: 'c3',
+                title: 'Networking and Connectivity (11 Topics)',
+                topics: [
+                    { id: 't3_1', title: 'Iproute2 Basics (ip addr, ip route)', difficulty: 'easy', time: '1h', weight: 2, prereqs: ['t2_2'], link: 'https://wiki.archlinux.org/title/Network_configuration' },
+                    { id: 't3_2', title: 'DHCP and Static IP Configuration', difficulty: 'medium', time: '1.5h', weight: 3, prereqs: ['t3_1'], link: 'https://wiki.archlinux.org/title/Network_configuration#Network_addresses' },
+                    { id: 't3_3', title: 'Using NetworkManager (CLI/GUI)', difficulty: 'medium', time: '1h', weight: 3, prereqs: ['t3_1'], link: 'https://wiki.archlinux.org/title/NetworkManager' },
+                    { id: 't3_4', title: 'Wireless Setup with Iwd/WPA Supplicant', difficulty: 'medium', time: '1.5h', weight: 3, prereqs: ['t3_3'], link: 'https://wiki.archlinux.org/title/Wireless_networking' },
+                    { id: 't3_5', title: 'OpenSSH Server Setup and Key-Based Auth', difficulty: 'medium', time: '1.5h', weight: 3, prereqs: ['t2_6'], link: 'https://wiki.archlinux.org/title/SSH' },
+                    { id: 't3_6', title: 'Samba and NFS for File Sharing', difficulty: 'hard', time: '2h', weight: 4, prereqs: ['t3_5'], link: 'https://wiki.archlinux.org/title/Samba' },
+                    { id: 't3_7', title: 'DNS Resolution and Systemd-resolved', difficulty: 'medium', time: '1h', weight: 3, prereqs: ['t3_1'], link: 'https://wiki.archlinux.org/title/Domain_name_resolution' },
+                    { id: 't3_8', title: 'Setting up a Basic DNS/DHCP Server (Dnsmasq)', difficulty: 'hard', time: '2.5h', weight: 5, prereqs: ['t3_7'], link: 'https://wiki.archlinux.org/title/Dnsmasq' },
+                    { id: 't3_9', title: 'Using Networkctl and Systemd Networkd', difficulty: 'medium', time: '1.5h', weight: 3, prereqs: ['t2_2'], link: 'https://wiki.archlinux.org/title/Systemd-networkd' },
+                    { id: 't3_10', title: 'VPN Client Setup (OpenVPN/WireGuard)', difficulty: 'hard', time: '2h', weight: 4, prereqs: ['t3_4'], link: 'https://wiki.archlinux.org/title/VPN' },
+                    { id: 't3_11', title: 'IPv6 Configuration and Tunneling', difficulty: 'hard', time: '1.5h', weight: 4, prereqs: ['t3_2'], link: 'https://wiki.archlinux.org/title/IPv6' },
+                ]
+            },
+            {
+                id: 'c4',
+                title: 'Desktop Environments and Window Managers (10 Topics)',
+                topics: [
+                    { id: 't4_1', title: 'Installing and Configuring Xorg Server', difficulty: 'medium', time: '1.5h', weight: 4, prereqs: ['t2_4'], link: 'https://wiki.archlinux.org/title/Xorg' },
+                    { id: 't4_2', title: 'Installing Graphics Drivers (NVIDIA/AMD/Intel)', difficulty: 'hard', time: '2h', weight: 5, prereqs: ['t4_1', 't2_5'], link: 'https://wiki.archlinux.org/title/Category:Graphics' },
+                    { id: 't4_3', title: 'Choosing and Installing a Display Manager (SDDM/GDM)', difficulty: 'medium', time: '1h', weight: 3, prereqs: ['t4_1'], link: 'https://wiki.archlinux.org/title/Display_manager' },
+                    { id: 't4_4', title: 'Desktop Environments (KDE Plasma, GNOME, XFCE)', difficulty: 'easy', time: '1h', weight: 2, prereqs: ['t4_3', 't2_1'], link: 'https://wiki.archlinux.org/title/Desktop_environment' },
+                    { id: 't4_5', title: 'Introduction to Tiling Window Managers (i3/Sway)', difficulty: 'medium', time: '2h', weight: 4, prereqs: ['t4_1'], link: 'https://wiki.archlinux.org/title/Tiling_window_manager' },
+                    { id: 't4_6', title: 'Configuring an i3 Setup (Basics)', difficulty: 'hard', time: '3h', weight: 5, prereqs: ['t4_5'], link: 'https://wiki.archlinux.org/title/I3' },
+                    { id: 't4_7', title: 'Wayland Compositors (Sway/Hyprland)', difficulty: 'hard', time: '2.5h', weight: 4, prereqs: ['t4_5'], link: 'https://wiki.archlinux.org/title/Wayland' },
+                    { id: 't4_8', title: 'Sound Configuration (ALSA, PipeWire, PulseAudio)', difficulty: 'medium', time: '1.5h', weight: 3, prereqs: ['t2_4'], link: 'https://wiki.archlinux.org/title/Sound_system' },
+                    { id: 't4_9', title: 'Input Device Configuration (libinput, xinput)', difficulty: 'medium', time: '1h', weight: 3, prereqs: ['t4_1'], link: 'https://wiki.archlinux.org/title/Touchpad' },
+                    { id: 't4_10', title: 'Font Management and Rendering', difficulty: 'easy', time: '45m', weight: 2, prereqs: ['t4_1'], link: 'https://wiki.archlinux.org/title/Fonts' },
+                ]
+            },
+            {
+                id: 'c5',
+                title: 'Filesystems, Storage, and Backup (10 Topics)',
+                topics: [
+                    { id: 't5_1', title: 'Advanced GPT Partitioning (Gdisk)', difficulty: 'medium', time: '1.5h', weight: 3, prereqs: ['t1_2'], link: 'https://wiki.archlinux.org/title/Partitioning#GUID_Partition_Table' },
+                    { id: 't5_2', title: 'Logical Volume Management (LVM) Setup', difficulty: 'hard', time: '3h', weight: 5, prereqs: ['t5_1'], link: 'https://wiki.archlinux.org/title/Logical_Volume_Manager' },
+                    { id: 't5_3', title: 'Filesystem Encryption with LUKS (Manual)', difficulty: 'hard', time: '2.5h', weight: 5, prereqs: ['t5_2', 't2_7'], link: 'https://wiki.archlinux.org/title/Dm-crypt/Encrypting_a_non-root_file_system' },
+                    { id: 't5_4', title: 'Btrfs Filesystem: Subvolumes, Snapshots, and Send/Receive', difficulty: 'hard', time: '3h', weight: 5, prereqs: ['t5_3'], link: 'https://wiki.archlinux.org/title/Btrfs' },
+                    { id: 't5_5', title: 'RAID Configuration with Mdadm', difficulty: 'hard', time: '2.5h', weight: 5, prereqs: ['t5_1'], link: 'https://wiki.archlinux.org/title/RAID' },
+                    { id: 't5_6', title: 'Mounting Network Filesystems (NFS/CIFS)', difficulty: 'medium', time: '1.5h', weight: 3, prereqs: ['t3_6'], link: 'https://wiki.archlinux.org/title/NFS' },
+                    { id: 't5_7', title: 'Automatic Backup with Rsync and Cron', difficulty: 'medium', time: '1.5h', weight: 3, prereqs: ['t2_2', 't2_6'], link: 'https://wiki.archlinux.org/title/Rsync' },
+                    { id: 't5_8', title: 'Using Timeshift for System Snapshots', difficulty: 'easy', time: '1h', weight: 2, prereqs: ['t5_4'], link: 'https://wiki.archlinux.org/title/Timeshift' },
+                    { id: 't5_9', title: 'Disk Monitoring with SMART Tools', difficulty: 'medium', time: '1h', weight: 2, prereqs: [], link: 'https://wiki.archlinux.org/title/S.M.A.R.T.' },
+                    { id: 't5_10', title: 'Optimizing SSDs (Fstrim and Alignment)', difficulty: 'medium', time: '1h', weight: 3, prereqs: ['t5_4'], link: 'https://wiki.archlinux.org/title/Solid_State_Drive' },
+                ]
+            },
+            {
+                id: 'c6',
+                title: 'Security and Privacy (10 Topics)',
+                topics: [
+                    { id: 't6_1', title: 'Firewall Setup with Ufw/Iptables', difficulty: 'medium', time: '2h', weight: 3, prereqs: ['t3_1'], link: 'https://wiki.archlinux.org/title/Category:Firewalls' },
+                    { id: 't6_2', title: 'Hardening SSH (Disable Root, Change Port)', difficulty: 'medium', time: '1h', weight: 3, prereqs: ['t3_5'], link: 'https://wiki.archlinux.org/title/SSH#Security' },
+                    { id: 't6_3', title: 'Using Fail2ban for Intrusion Prevention', difficulty: 'medium', time: '1.5h', weight: 4, prereqs: ['t6_2', 't2_3'], link: 'https://wiki.archlinux.org/title/Fail2ban' },
+                    { id: 't6_4', title: 'Auditing System Logs and Services', difficulty: 'hard', time: '2h', weight: 4, prereqs: ['t2_3', 't2_2'], link: 'https://wiki.archlinux.org/title/Security' },
+                    { id: 't6_5', title: 'GPG/OpenPGP for File Encryption and Signing', difficulty: 'medium', time: '1.5h', weight: 3, prereqs: ['t2_1'], link: 'https://wiki.archlinux.org/title/GnuPG' },
+                    { id: 't6_6', title: 'AppArmor/SELinux Introduction and Policy Loading', difficulty: 'hard', time: '3h', weight: 5, prereqs: ['t2_4'], link: 'https://wiki.archlinux.org/title/AppArmor' },
+                    { id: 't6_7', title: 'Tor Client Setup', difficulty: 'easy', time: '1h', weight: 2, prereqs: ['t3_1'], link: 'https://wiki.archlinux.org/title/Tor' },
+                    { id: 't6_8', title: 'Browser Hardening and Privacy Extensions', difficulty: 'medium', time: '1.5h', weight: 3, prereqs: ['t6_7'], link: 'https://wiki.archlinux.org/title/List_of_applications#Web_browsers' },
+                    { id: 't6_9', title: 'Two-Factor Authentication (2FA) for SSH/Login', difficulty: 'medium', time: '1h', weight: 3, prereqs: ['t6_2'], link: 'https://wiki.archlinux.org/title/Two-factor_authentication' },
+                    { id: 't6_10', title: 'Creating and Verifying Checksums (SHA/MD5)', difficulty: 'easy', time: '30m', weight: 1, prereqs: [], link: 'https://wiki.archlinux.org/title/Integrity_checking' },
+                ]
+            },
+            {
+                id: 'c7',
+                title: 'Virtualization and Containers (10 Topics)',
+                topics: [
+                    { id: 't7_1', title: 'KVM/QEMU: Installation and Setup', difficulty: 'hard', time: '2.5h', weight: 5, prereqs: ['t2_4'], link: 'https://wiki.archlinux.org/title/KVM' },
+                    { id: 't7_2', title: 'Libvirt/Virt-manager: GUI Management', difficulty: 'medium', time: '1.5h', weight: 3, prereqs: ['t7_1'], link: 'https://wiki.archlinux.org/title/Libvirt' },
+                    { id: 't7_3', title: 'Setting up a Virtual Network Bridge', difficulty: 'hard', time: '2h', weight: 4, prereqs: ['t3_9', 't7_2'], link: 'https://wiki.archlinux.org/title/Network_bridge' },
+                    { id: 't7_4', title: 'Docker: Basic Installation and Usage', difficulty: 'medium', time: '1.5h', weight: 3, prereqs: ['t2_2'], link: 'https://wiki.archlinux.org/title/Docker' },
+                    { id: 't7_5', title: 'Creating Docker Images (Dockerfile Basics)', difficulty: 'medium', time: '2h', weight: 4, prereqs: ['t7_4'], link: 'https://wiki.archlinux.org/title/Docker#Creating_custom_images' },
+                    { id: 't7_6', title: 'Podman: Rootless Container Management', difficulty: 'medium', time: '1.5h', weight: 3, prereqs: ['t7_4'], link: 'https://wiki.archlinux.org/title/Podman' },
+                    { id: 't7_7', title: 'Docker Compose for Multi-Container Apps', difficulty: 'hard', time: '2.5h', weight: 5, prereqs: ['t7_5'], link: 'https://wiki.archlinux.org/title/Docker#Docker_Compose' },
+                    { id: 't7_8', title: 'LXC/LXD Container Basics', difficulty: 'hard', time: '2h', weight: 4, prereqs: ['t2_2'], link: 'https://wiki.archlinux.org/title/LXC' },
+                    { id: 't7_9', title: 'Passing Through PCIe Devices (VT-d/IOMMU)', difficulty: 'hard', time: '3h', weight: 5, prereqs: ['t7_1', 't2_5'], link: 'https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF' },
+                    { id: 't7_10', title: 'Using Vagrant for Local Development Environments', difficulty: 'medium', time: '1.5h', weight: 3, prereqs: ['t7_2'], link: 'https://wiki.archlinux.org/title/Vagrant' },
+                ]
+            },
+            {
+                id: 'c8',
+                title: 'Shell and Automation (10 Topics)',
+                topics: [
+                    { id: 't8_1', title: 'Zsh/Bash Configuration (Oh My Zsh, Starship)', difficulty: 'easy', time: '1h', weight: 2, prereqs: [], link: 'https://wiki.archlinux.org/title/Zsh' },
+                    { id: 't8_2', title: 'Aliases, Functions, and Dotfiles Management', difficulty: 'medium', time: '1.5h', weight: 3, prereqs: ['t8_1'], link: 'https://wiki.archlinux.org/title/Dotfiles' },
+                    { id: 't8_3', title: 'Advanced Grep, Sed, and Awk Usage', difficulty: 'hard', time: '2.5h', weight: 5, prereqs: ['t2_3'], link: 'https://wiki.archlinux.org/title/List_of_applications#Utilities' },
+                    { id: 't8_4', title: 'Introduction to Shell Scripting (Flow Control, Variables)', difficulty: 'medium', time: '2h', weight: 4, prereqs: ['t8_2'], link: 'https://wiki.archlinux.org/title/Bash#Shell_scripts' },
+                    { id: 't8_5', title: 'Regular Expressions (Regex) Mastery', difficulty: 'hard', time: '2h', weight: 4, prereqs: ['t8_3'], link: 'https://wiki.archlinux.org/title/List_of_applications#Text_processing' },
+                    { id: 't8_6', title: 'Job Control and Foreground/Background Processes', difficulty: 'easy', time: '1h', weight: 2, prereqs: ['t8_1'], link: 'https://wiki.archlinux.org/title/Bash#Job_control' },
+                    { id: 't8_7', title: 'Tmux/Screen for Terminal Multiplexing', difficulty: 'medium', time: '1.5h', weight: 3, prereqs: ['t8_1'], link: 'https://wiki.archlinux.org/title/List_of_applications#Terminal_emulators' },
+                    { id: 't8_8', title: 'Piping and Redirection Mastery', difficulty: 'medium', time: '1h', weight: 3, prereqs: ['t8_1'], link: 'https://wiki.archlinux.org/title/Bash#Input_and_output_redirection' },
+                    { id: 't8_9', title: 'Using Find and Xargs Effectively', difficulty: 'medium', time: '1.5h', weight: 3, prereqs: ['t8_8'], link: 'https://wiki.archlinux.org/title/List_of_applications#File_and_folder_utilities' },
+                    { id: 't8_10', title: 'Writing Advanced Shell Scripts with Error Handling', difficulty: 'hard', time: '3h', weight: 5, prereqs: ['t8_4', 't8_5'], link: 'https://wiki.archlinux.org/title/Bash#Advanced_scripting' },
+                ]
+            },
+            {
+                id: 'c9',
+                title: 'Development and Tooling (10 Topics)',
+                topics: [
+                    { id: 't9_1', title: 'Git Basic Usage and Workflow', difficulty: 'easy', time: '1.5h', weight: 2, prereqs: [], link: 'https://wiki.archlinux.org/title/Git' },
+                    { id: 't9_2', title: 'Git Branching, Merging, and Conflict Resolution', difficulty: 'medium', time: '2h', weight: 4, prereqs: ['t9_1'], link: 'https://wiki.archlinux.org/title/Git#Advanced_usage' },
+                    { id: 't9_3', title: 'Setting up a C/C++ Development Environment (GCC, Make)', difficulty: 'medium', time: '1.5h', weight: 3, prereqs: [], link: 'https://wiki.archlinux.org/title/DeveloperWiki:Building_in_Arch' },
+                    { id: 't9_4', title: 'Using Vi/Vim/Neovim as a Primary IDE', difficulty: 'hard', time: '3h', weight: 5, prereqs: ['t8_7'], link: 'https://wiki.archlinux.org/title/Vim' },
+                    { id: 't9_5', title: 'Python Environment Management (Pyenv, Virtualenv)', difficulty: 'medium', time: '1.5h', weight: 3, prereqs: [], link: 'https://wiki.archlinux.org/title/Python' },
+                    { id: 't9_6', title: 'Setting up a Web Development Stack (LAMP/LEMP)', difficulty: 'hard', time: '3h', weight: 5, prereqs: ['t2_2', 't3_7'], link: 'https://wiki.archlinux.org/title/Category:Web_server' },
+                    { id: 't9_7', title: 'Debugging with GDB/Valgrind', difficulty: 'hard', time: '2.5h', weight: 4, prereqs: ['t9_3'], link: 'https://wiki.archlinux.org/title/List_of_applications#Programming' },
+                    { id: 't9_8', title: 'Package Management for Other Languages (Cargo, NPM, Pip)', difficulty: 'medium', time: '1h', weight: 2, prereqs: ['t2_1'], link: 'https://wiki.archlinux.org/title/List_of_applications#Package_management' },
+                    { id: 't9_9', title: 'Creating AUR Packages (PKGBUILD)', difficulty: 'hard', time: '2h', weight: 5, prereqs: ['t2_10'], link: 'https://wiki.archlinux.org/title/AUR_submission_guidelines' },
+                    { id: 't9_10', title: 'Basic CI/CD with Git Hooks', difficulty: 'medium', time: '1.5h', weight: 3, prereqs: ['t9_2'], link: 'https://wiki.archlinux.org/title/Git#Hooks' },
+                ]
+            },
+            {
+                id: 'c10',
+                title: 'Troubleshooting and Advanced Topics (10 Topics)',
+                topics: [
+                    { id: 't10_1', title: 'Troubleshooting Boot Issues (Chrooting, Emergency Mode)', difficulty: 'hard', time: '3h', weight: 5, prereqs: ['t1_5', 't1_9'], link: 'https://wiki.archlinux.org/title/Arch_boot_process' },
+                    { id: 't10_2', title: 'Rollback System with Pacman Cache/Snapshots', difficulty: 'medium', time: '1.5h', weight: 3, prereqs: ['t5_4'], link: 'https://wiki.archlinux.org/title/Downgrading_packages' },
+                    { id: 't10_3', title: 'Kernel Compilation and Customization', difficulty: 'hard', time: '4h', weight: 5, prereqs: ['t2_7', 't9_3'], link: 'https://wiki.archlinux.org/title/Kernel/Traditional' },
+                    { id: 't10_4', title: 'Resource Monitoring and Tuning (Top, Htop, Iotop, Pstree)', difficulty: 'medium', time: '1.5h', weight: 3, prereqs: ['t2_2'], link: 'https://wiki.archlinux.org/title/System_monitoring' },
+                    { id: 't10_5', title: 'Performance Optimization (Swappiness, Cpu governor)', difficulty: 'hard', time: '2h', weight: 4, prereqs: ['t10_4'], link: 'https://wiki.archlinux.org/title/Performance_tuning' },
+                    { id: 't10_6', title: 'Setting up a Multi-Boot System', difficulty: 'hard', time: '2h', weight: 4, prereqs: ['t1_9', 't5_1'], link: 'https://wiki.archlinux.org/title/Dual_boot_with_Windows' },
+                    { id: 't10_7', title: 'Using TTYs and Virtual Consoles Effectively', difficulty: 'easy', time: '30m', weight: 1, prereqs: [], link: 'https://wiki.archlinux.org/title/Category:Text-based' },
+                    { id: 't10_8', title: 'Debugging Xorg/Wayland Startup Issues', difficulty: 'hard', time: '2.5h', weight: 5, prereqs: ['t4_2', 't2_3'], link: 'https://wiki.archlinux.org/title/Xorg#Troubleshooting' },
+                    { id: 't10_9', title: 'Customizing Systemd Startup Behavior (Drop-in Files)', difficulty: 'medium', time: '1.5h', weight: 3, prereqs: ['t2_2'], link: 'https://wiki.archlinux.org/title/Systemd#Drop-in_files' },
+                    { id: 't10_10', title: 'Learning the Arch Linux Philosophy (The "Arch Way")', difficulty: 'easy', time: '1h', weight: 1, prereqs: ['t1_10'], link: 'https://wiki.archlinux.org/title/Arch_Linux#Principles' },
+                ]
+            }
+        ];
+
+        // --- GLOBAL VARIABLES (PREFERENCE/STATE) ---
+        let currentPrereqModalTopic = null;
+        let allTopics = [];
+        let completedTopics = new Set();
+        let currentFilters = {
+            difficulty: null,
+            status: null,
+            search: ''
+        };
+        let users = {};
+        let loggedInUser = null;
+
+        // --- DOM ELEMENTS ---
+        const loginContainer = document.getElementById('loginContainer');
+        const registerContainer = document.getElementById('registerContainer');
+        const mainContainer = document.getElementById('mainContainer');
+        const chaptersContainer = document.getElementById('chaptersContainer');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const showRegisterBtn = document.getElementById('showRegisterBtn');
+        const showLoginBtn = document.getElementById('showLoginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+        const currentUserSpan = document.getElementById('currentUser');
+        const topicSearch = document.getElementById('topicSearch');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const resetFiltersBtn = document.getElementById('resetFilters');
+
+        const prereqConfirmModal = document.getElementById('prereqConfirmModal');
+        const modalTopicTitle = document.getElementById('modalTopicTitle');
+        const modalPrereqList = document.getElementById('modalPrereqList');
+        const modalConfirmBtn = document.getElementById('modalConfirmBtn');
+        const modalCancelBtn = document.getElementById('modalCancelBtn');
+        const deleteConfirmModal = document.getElementById('deleteConfirmModal');
+        const deleteModalConfirmBtn = document.getElementById('deleteModalConfirmBtn');
+        const deleteModalCancelBtn = document.getElementById('deleteModalCancelBtn');
+
+
+        // --- UTILITY FUNCTIONS ---
+
+        function saveState() {
+            localStorage.setItem('users', JSON.stringify(users));
+            if (loggedInUser) {
+                localStorage.setItem('loggedInUser', loggedInUser);
+            } else {
+                localStorage.removeItem('loggedInUser');
+            }
+        }
+
+        function loadState() {
+            users = JSON.parse(localStorage.getItem('users')) || {};
+            loggedInUser = localStorage.getItem('loggedInUser');
+            if (loggedInUser && users[loggedInUser]) {
+                // Ensure completedTopics is loaded from the current user's data
+                completedTopics = new Set(users[loggedInUser].completedTopics);
+                showMainContent(loggedInUser);
+            } else {
+                showAuthContent('login');
+            }
+        }
+
+        function prepareData() {
+            // Flatten the roadmap data and map by ID for easy lookup
+            archRoadmap.forEach(chapter => {
+                chapter.topics.forEach(topic => {
+                    allTopics.push(topic);
+                    topic.chapterId = chapter.id; // Add chapter reference to topic
+                });
+            });
+        }
+
+        function getTopicById(id) {
+            return allTopics.find(topic => topic.id === id);
+        }
+
+        function checkPrerequisites(topicId) {
+            const topic = getTopicById(topicId);
+            if (!topic || !topic.prereqs || topic.prereqs.length === 0) {
+                return { isMet: true, unmet: [] };
+            }
+
+            const unmetPrereqs = topic.prereqs.filter(prereqId => !completedTopics.has(prereqId));
+
+            return {
+                isMet: unmetPrereqs.length === 0,
+                unmet: unmetPrereqs
+            };
+        }
+
+        function calculateProgress() {
+            let totalWeight = 0;
+            let completedWeight = 0;
+            let totalTopicsCount = allTopics.length;
+            let completedTopicsCount = completedTopics.size;
+
+            allTopics.forEach(topic => {
+                totalWeight += topic.weight;
+                if (completedTopics.has(topic.id)) {
+                    completedWeight += topic.weight;
+                }
+            });
+
+            const completionPercentage = totalTopicsCount > 0
+                ? Math.round((completedTopicsCount / totalTopicsCount) * 100)
+                : 0;
+
+            const scorePercentage = totalWeight > 0
+                ? Math.round((completedWeight / totalWeight) * 100)
+                : 0;
+
+            let masteryLevel = 'Novice';
+            if (scorePercentage >= 90) masteryLevel = 'Arch Master';
+            else if (scorePercentage >= 75) masteryLevel = 'Guru';
+            else if (scorePercentage >= 50) masteryLevel = 'Intermediate';
+            else if (scorePercentage >= 25) masteryLevel = 'Apprentice';
+
+            return {
+                totalTopicsCount,
+                completedTopicsCount,
+                totalWeight,
+                completedWeight,
+                completionPercentage,
+                scorePercentage,
+                masteryLevel
+            };
+        }
+
+        function updateProgressDisplay() {
+            const progress = calculateProgress();
+
+            document.getElementById('totalTopics').textContent = progress.totalTopicsCount;
+            document.getElementById('completedTopics').textContent = progress.completedTopicsCount;
+            document.getElementById('totalWeight').textContent = progress.totalWeight;
+            document.getElementById('currentLevel').textContent = progress.masteryLevel;
+
+            const progressBar = document.getElementById('mainProgressBar');
+            progressBar.style.width = `${progress.completionPercentage}%`;
+            progressBar.textContent = `${progress.completionPercentage}% (Score: ${progress.completedWeight}/${progress.totalWeight})`;
+
+            // Update chapter progress
+            archRoadmap.forEach(chapter => {
+                const chapterTopics = allTopics.filter(t => t.chapterId === chapter.id);
+                const chapterCompletedCount = chapterTopics.filter(t => completedTopics.has(t.id)).length;
+                const chapterProgressSpan = document.getElementById(`chapter-progress-${chapter.id}`);
+                if (chapterProgressSpan) {
+                    chapterProgressSpan.textContent = `${chapterCompletedCount}/${chapterTopics.length}`;
+                }
+            });
+
+            checkAchievements(progress.completedTopicsCount);
+        }
+
+        // --- ACHIEVEMENT SYSTEM ---
+        const achievements = [
+            { count: 1, title: 'First Pacman Transaction', desc: 'Completed your first topic. Welcome to the Arch Way!', isUnlocked: false },
+            { count: 10, title: 'Boot Successful', desc: 'Completed 10 topics. You can boot without a live USB now!', isUnlocked: false },
+            { count: 25, title: 'AUR User', desc: 'Completed 25 topics. You are proficient with the core system.', isUnlocked: false },
+            { count: 50, title: 'Networking Guru', desc: 'Completed 50 topics. You can troubleshoot most network issues.', isUnlocked: false },
+            { count: 75, title: 'Desktop Master', desc: 'Completed 75 topics. You can build a customized desktop environment from scratch.', isUnlocked: false },
+            { count: 100, title: 'Arch Master', desc: 'Completed 100 topics. You are a true Arch Master!', isUnlocked: false }
+        ];
+
+        function checkAchievements(completedCount) {
+            if (!loggedInUser) return;
+            const userData = users[loggedInUser];
+
+            achievements.forEach(achievement => {
+                if (completedCount >= achievement.count && !userData.unlockedAchievements.includes(achievement.title)) {
+                    userData.unlockedAchievements.push(achievement.title);
+                    showAchievementPopup(achievement.title, achievement.desc);
+                }
+            });
+            saveState();
+        }
+
+        function showAchievementPopup(title, desc) {
+            const popup = document.getElementById('achievementPopup');
+            document.getElementById('achievementTitle').textContent = `🏆 ${title}`;
+            document.getElementById('achievementDesc').textContent = desc;
+            popup.classList.add('show');
+            setTimeout(() => {
+                popup.classList.remove('show');
+            }, 5000);
+        }
+
+        // --- RENDERING & INTERACTION (TOPIC/CHECKBOX) ---
+
+        function createTopicElement(topic) {
+            const topicElement = document.createElement('div');
+            topicElement.className = 'topic';
+            topicElement.dataset.id = topic.id;
+            topicElement.dataset.difficulty = topic.difficulty;
+            topicElement.dataset.weight = topic.weight;
+
+            const isCompleted = completedTopics.has(topic.id);
+            const prereqResult = checkPrerequisites(topic.id);
+            let isPrereqFailed = !prereqResult.isMet && !isCompleted;
+
+            if (isCompleted) {
+                topicElement.classList.add('completed');
+                isPrereqFailed = false; // A completed topic is never 'prereq-failed'
+            }
+
+            if (isPrereqFailed) {
+                topicElement.classList.add('prereq-failed');
+            }
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'topic-checkbox';
+            checkbox.checked = isCompleted;
+            checkbox.disabled = false; // Checkbox is always clickable to allow override/revert
+            checkbox.addEventListener('change', (e) => handleCheckboxChange(e, topic.id));
+
+            const info = document.createElement('div');
+            info.className = 'topic-info';
+
+            const titleLink = document.createElement('a');
+            titleLink.className = 'topic-link';
+            titleLink.href = topic.link;
+            titleLink.target = '_blank';
+            titleLink.textContent = topic.title;
+
+            const title = document.createElement('div');
+            title.className = 'topic-title';
+            title.appendChild(titleLink);
+
+            const meta = document.createElement('div');
+            meta.className = 'topic-meta';
+            meta.innerHTML = `
+                <span class="badge difficulty ${topic.difficulty}">${topic.difficulty}</span>
+                <span class="badge time">Time: ${topic.time}</span>
+                <span class="badge weight">Weight: ${topic.weight}</span>
+            `;
+
+            info.appendChild(title);
+            info.appendChild(meta);
+
+            // Add Prerequisites List if necessary
+            if (topic.prereqs.length > 0) {
+                const prereqListContainer = document.createElement('div');
+                prereqListContainer.className = 'prerequisites-list';
+                prereqListContainer.innerHTML = '<strong>Prerequisites:</strong>';
+                const ul = document.createElement('ul');
+
+                topic.prereqs.forEach(prereqId => {
+                    const prereqTopic = getTopicById(prereqId);
+                    const li = document.createElement('li');
+                    const prereqCompleted = completedTopics.has(prereqId);
+                    li.textContent = prereqTopic ? prereqTopic.title : `Unknown Topic (${prereqId})`;
+                    li.classList.toggle('completed-req', prereqCompleted);
+
+                    if (prereqTopic && prereqTopic.link) {
+                        const link = document.createElement('a');
+                        link.href = prereqTopic.link;
+                        link.target = '_blank';
+                        link.classList.add('prereq-link');
+                        link.textContent = li.textContent;
+                        li.textContent = '';
+                        li.appendChild(link);
+                    }
+                    ul.appendChild(li);
+                });
+                prereqListContainer.appendChild(ul);
+                info.appendChild(prereqListContainer);
+            }
+
+
+            topicElement.appendChild(checkbox);
+            topicElement.appendChild(info);
+
+            return topicElement;
+        }
+
+        function createChapterElement(chapter) {
+            const chapterElement = document.createElement('div');
+            chapterElement.className = 'chapter';
+            chapterElement.dataset.id = chapter.id;
+
+            const chapterTopics = allTopics.filter(t => t.chapterId === chapter.id);
+            const chapterCompletedCount = chapterTopics.filter(t => completedTopics.has(t.id)).length;
+
+            const header = document.createElement('div');
+            header.className = 'chapter-header';
+            header.innerHTML = `
+                <div class="chapter-title">${chapter.title}</div>
+                <div class="chapter-meta">
+                    <span class="chapter-progress" id="chapter-progress-${chapter.id}">${chapterCompletedCount}/${chapterTopics.length}</span>
+                    <span class="toggle-icon">▼</span>
+                </div>
+            `;
+            // Toggle content on click
+            header.addEventListener('click', (e) => {
+                // Prevent collapsing if a checkbox was the target
+                if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'A') {
+                    const content = chapterElement.querySelector('.chapter-content');
+                    const icon = chapterElement.querySelector('.toggle-icon');
+                    if (content.style.display === 'none') {
+                        content.style.display = 'block';
+                        icon.classList.remove('rotated');
+                    } else {
+                        content.style.display = 'none';
+                        icon.classList.add('rotated');
+                    }
+                }
+            });
+
+            const content = document.createElement('div');
+            content.className = 'chapter-content';
+            content.style.display = 'block'; // Default to show
+
+            chapterElement.appendChild(header);
+            chapterElement.appendChild(content);
+
+            return { chapterElement, content };
+        }
+
+        function renderRoadmap() {
+            chaptersContainer.innerHTML = '';
+            const { difficulty: filterDifficulty, status: filterStatus, search: searchTerm } = currentFilters;
+
+            let filteredTopics = allTopics.filter(topic => {
+                // 1. Filter by Search Term
+                if (searchTerm && !topic.title.toLowerCase().includes(searchTerm.toLowerCase())) {
+                    return false;
+                }
+
+                // 2. Filter by Difficulty
+                if (filterDifficulty && topic.difficulty !== filterDifficulty) {
+                    return false;
+                }
+
+                // 3. Filter by Status
+                const isCompleted = completedTopics.has(topic.id);
+                if (filterStatus) {
+                    if (filterStatus === 'completed' && !isCompleted) return false;
+                    if (filterStatus === 'incomplete' && isCompleted) return false;
+                }
+
+                return true;
+            });
+
+            // Group filtered topics by chapter
+            const chaptersMap = new Map();
+            filteredTopics.forEach(topic => {
+                if (!chaptersMap.has(topic.chapterId)) {
+                    chaptersMap.set(topic.chapterId, []);
+                }
+                chaptersMap.get(topic.chapterId).push(topic);
+            });
+
+            // Render Chapters and Topics
+            archRoadmap.forEach(chapter => {
+                const topicsInChapter = chaptersMap.get(chapter.id);
+                if (topicsInChapter && topicsInChapter.length > 0) {
+                    const { chapterElement, content } = createChapterElement(chapter);
+
+                    topicsInChapter.forEach(topic => {
+                        content.appendChild(createTopicElement(topic));
+                    });
+
+                    chaptersContainer.appendChild(chapterElement);
+                } else if (searchTerm || filterDifficulty || filterStatus) {
+                    // Don't render empty chapters unless no filters are active (but here we only render if filteredTopics is not empty)
+                    // If no topics match, we simply skip the chapter.
+                } else {
+                    // Render all chapters even if empty on initial load/no filter.
+                    // To keep the structure consistent, we must still render it, but for a clean filtered view, we only render if there are topics.
+                    // Since the logic filters out chapters with no matching topics, this is fine.
+                }
+            });
+            updateProgressDisplay();
+        }
+
+        // --- HANDLERS ---
+
+        function handleCheckboxChange(event, topicId) {
+            const isChecked = event.target.checked;
+            const prereqResult = checkPrerequisites(topicId);
+
+            if (isChecked) {
+                if (!prereqResult.isMet) {
+                    // Show confirmation modal for prerequisite override
+                    currentPrereqModalTopic = topicId;
+                    showPrereqModal(topicId, prereqResult.unmet);
+                    event.target.checked = false; // Revert checkbox state until confirmed
+                    return;
+                }
+                // Prereqs met or overriding allowed (after confirmation)
+                completedTopics.add(topicId);
+            } else {
+                completedTopics.delete(topicId);
+            }
+
+            // Update user state and save
+            if (loggedInUser && users[loggedInUser]) {
+                users[loggedInUser].completedTopics = Array.from(completedTopics);
+                saveState();
+            }
+
+            // Re-render to update dependent topics (if any)
+            renderRoadmap();
+        }
+
+        function handleModalConfirm() {
+            if (currentPrereqModalTopic) {
+                // Force complete the topic
+                completedTopics.add(currentPrereqModalTopic);
+
+                // Update user state and save
+                if (loggedInUser && users[loggedInUser]) {
+                    users[loggedInUser].completedTopics = Array.from(completedTopics);
+                    saveState();
+                }
+
+                // Re-render to reflect the change and update the original checkbox
+                renderRoadmap();
+
+                // Find the original checkbox and set it to checked
+                const originalCheckbox = document.querySelector(`.topic[data-id="${currentPrereqModalTopic}"] .topic-checkbox`);
+                if (originalCheckbox) {
+                    originalCheckbox.checked = true;
+                    originalCheckbox.closest('.topic').classList.remove('prereq-failed');
+                    originalCheckbox.closest('.topic').classList.add('completed');
+                }
+
+                currentPrereqModalTopic = null;
+            }
+            prereqConfirmModal.style.display = 'none';
+        }
+
+        function handleModalCancel() {
+            // The original checkbox was already reverted in handleCheckboxChange
+            currentPrereqModalTopic = null;
+            prereqConfirmModal.style.display = 'none';
+        }
+
+        function showPrereqModal(topicId, unmetPrereqs) {
+            const topic = getTopicById(topicId);
+            modalTopicTitle.textContent = topic.title;
+            modalPrereqList.innerHTML = '';
+            unmetPrereqs.forEach(prereqId => {
+                const prereqTopic = getTopicById(prereqId);
+                const li = document.createElement('li');
+                li.textContent = prereqTopic ? prereqTopic.title : `Unknown Topic (${prereqId})`;
+                modalPrereqList.appendChild(li);
+            });
+            prereqConfirmModal.style.display = 'flex';
+        }
+
+        function handleFilterClick(event) {
+            const btn = event.target;
+            const filterType = btn.dataset.filterType;
+            const filterValue = btn.dataset.filterValue;
+
+            // Toggle logic: If the clicked button is already active, deactivate it.
+            if (btn.classList.contains('active')) {
+                currentFilters[filterType] = null;
+                btn.classList.remove('active');
+            } else {
+                // Deactivate other buttons of the same type
+                document.querySelectorAll(`.filter-btn[data-filter-type="${filterType}"]`).forEach(otherBtn => {
+                    otherBtn.classList.remove('active');
+                });
+                // Activate the clicked button
+                currentFilters[filterType] = filterValue;
+                btn.classList.add('active');
+            }
+
+            renderRoadmap();
+        }
+
+        function handleResetFilters() {
+            currentFilters.difficulty = null;
+            currentFilters.status = null;
+            currentFilters.search = '';
+            document.querySelectorAll('.filter-btn.active').forEach(btn => btn.classList.remove('active'));
+            topicSearch.value = '';
+            renderRoadmap();
+        }
+
+        // --- AUTHENTICATION & UI FLOW ---
+
+        function showAuthContent(type) {
+            mainContainer.classList.remove('active');
+            if (type === 'login') {
+                registerContainer.classList.remove('active');
+                loginContainer.classList.add('active');
+            } else if (type === 'register') {
+                loginContainer.classList.remove('active');
+                registerContainer.classList.add('active');
+            }
+        }
+
+        function showMainContent(username) {
+            currentUserSpan.textContent = username;
+            loginContainer.classList.remove('active');
+            registerContainer.classList.remove('active');
+            mainContainer.classList.add('active');
+            completedTopics = new Set(users[username].completedTopics);
+            renderRoadmap(); // Initial render
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const usernameInput = document.getElementById('loginUsername').value.trim();
+            const passwordInput = document.getElementById('loginPassword').value;
+            const errorMsg = document.getElementById('loginError');
+            errorMsg.classList.remove('show');
+            errorMsg.textContent = '';
+
+            if (users[usernameInput] && users[usernameInput].password === passwordInput) {
+                loggedInUser = usernameInput;
+                saveState();
+                showMainContent(loggedInUser);
+            } else {
+                errorMsg.textContent = 'Invalid username or password.';
+                errorMsg.classList.add('show');
+            }
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const usernameInput = document.getElementById('registerUsername').value.trim();
+            const passwordInput = document.getElementById('registerPassword').value;
+            const confirmPasswordInput = document.getElementById('confirmPassword').value;
+            const errorMsg = document.getElementById('registerError');
+            const successMsg = document.getElementById('registerSuccess');
+            errorMsg.classList.remove('show');
+            successMsg.classList.remove('show');
+            errorMsg.textContent = '';
+            successMsg.textContent = '';
+
+            if (users[usernameInput]) {
+                errorMsg.textContent = 'Username already exists.';
+                errorMsg.classList.add('show');
+                return;
+            }
+
+            if (passwordInput !== confirmPasswordInput) {
+                errorMsg.textContent = 'Passwords do not match.';
+                errorMsg.classList.add('show');
+                return;
+            }
+
+            // Simple client-side validation for pattern and length is already in HTML, but we re-check
+            if (!/^[a-zA-Z0-9_-]{3,20}$/.test(usernameInput)) {
+                errorMsg.textContent = 'Username must be 3-20 characters, alphanumeric, underscore, or dash.';
+                errorMsg.classList.add('show');
+                return;
+            }
+
+            if (passwordInput.length < 6) {
+                errorMsg.textContent = 'Password must be at least 6 characters.';
+                errorMsg.classList.add('show');
+                return;
+            }
+
+            users[usernameInput] = {
+                password: passwordInput,
+                completedTopics: [],
+                unlockedAchievements: []
+            };
+
+            successMsg.textContent = 'Account created successfully! Redirecting to login...';
+            successMsg.classList.add('show');
+            saveState();
+
+            setTimeout(() => {
+                showAuthContent('login');
+                document.getElementById('loginUsername').value = usernameInput;
+                successMsg.classList.remove('show');
+            }, 2000);
+        }
+
+        function handleLogout() {
+            loggedInUser = null;
+            completedTopics = new Set(); // Clear state
+            saveState();
+            showAuthContent('login');
+        }
+
+        function handleDeleteAccount() {
+            deleteConfirmModal.style.display = 'flex';
+        }
+
+        function handleConfirmDelete() {
+            if (loggedInUser) {
+                delete users[loggedInUser];
+                handleLogout(); // Clears loggedInUser and saves state
+                deleteConfirmModal.style.display = 'none';
+                alert('Account permanently deleted.');
+            }
+        }
+
+        // --- INITIALIZATION ---
+
+        function initialize() {
+            // Prepare Data Structure
+            prepareData();
+
+            // Load State
+            loadState();
+
+            // Clock/Terminal Effect
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('terminalClock').textContent = `[${now.toLocaleTimeString()} | ${now.toLocaleDateString()}]`;
+            }, 1000);
+
+            // Auth Listeners
+            loginForm.addEventListener('submit', handleLogin);
+            registerForm.addEventListener('submit', handleRegister);
+            logoutBtn.addEventListener('click', handleLogout);
+            deleteAccountBtn.addEventListener('click', handleDeleteAccount);
+            deleteModalConfirmBtn.addEventListener('click', handleConfirmDelete);
+            deleteModalCancelBtn.addEventListener('click', () => deleteConfirmModal.style.display = 'none');
+            showRegisterBtn.addEventListener('click', () => {
+                loginContainer.classList.remove('active');
+                registerContainer.classList.add('active');
+                document.getElementById('loginError').classList.remove('show');
+            });
+            document.getElementById('showLoginBtn').addEventListener('click', () => {
+                registerContainer.classList.remove('active');
+                loginContainer.classList.add('active');
+                document.getElementById('registerError').classList.remove('show');
+                document.getElementById('registerSuccess').classList.remove('show');
+            });
+
+
+            // Modal Listeners
+            modalConfirmBtn.addEventListener('click', handleModalConfirm);
+            modalCancelBtn.addEventListener('click', handleModalCancel);
+
+            // Filtering Listeners
+            filterButtons.forEach(btn => btn.addEventListener('click', handleFilterClick));
+            resetFiltersBtn.addEventListener('click', handleResetFilters);
+            topicSearch.addEventListener('input', renderRoadmap);
+        }
+
+        initialize();
+
+    </script>
+</body>
+</html>
