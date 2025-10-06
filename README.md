@@ -36,6 +36,6 @@ The human role in this project was strictly limited to providing the initial ide
 To run this project locally, simply clone the repository and open the `index.html` file in your browser:
 
 ```bash
-git clone [https://github.com/c4nix/arch-roadmap.git](https://github.com/c4nix/arch-roadmap.git)
+git clone https://github.com/c4nix/arch-roadmap.git
 cd arch-roadmap
 # Open index.html in your preferred browser
